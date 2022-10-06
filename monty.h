@@ -1,11 +1,11 @@
 #ifndef MONTY_H
 #define MONTY_H
-#define _POSIX_C_SOURCE  200809L
+
+#define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
@@ -42,14 +42,29 @@ typedef struct instruction_s
         void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-extern int value;
+/**
+ * struct glob_s - global funcs
+ * @item: value
+ * @fd: File descriptor
+ * @linebuf: Lines in files
+ *
+ * Description - handling file and lines.
+ */
+typedef struct glob_s
+{
+	char *item;
+	FILE *fd;
+	char *linebuf;
+} glob_t;
+
+extern glob_t global;
 
 int is_digit(char *c);
-int read_file(const char *filename);
-void push_error(FILE *fd, char *linebuf, stack_t *stack, int line_num);
-void instruct_error(FILE *fd,char *linebuf,stack_t *stack,char *item,int line_num);
-int operation(stack_t **stack, char *args, char *item, int line_num);
+void read_file(char *argv);
+void push_error(FILE *fd, char *linebuf, stack_t **stack, int line_num);
+int operation(stack_t **stack, char *args, int line_num);
 void pall_ops(stack_t **stack, unsigned int line_num);
+void instruct_error(FILE *fd,char *linebuf,stack_t *stack,char *args,int line_num);
 void free_dlistint(stack_t *stack);
 void push_ops(stack_t **stack,unsigned int line_num);
 

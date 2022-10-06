@@ -16,7 +16,9 @@ int is_digit(char *c)
 	for(;*k != '\0';k++)
 	{
 		if((*k < '0' || *k > '9'))
+		{
 			return(0);
+		}
 	}
 	return(1);
 }

@@ -7,12 +7,12 @@
  * @stack: stack or queue
  * @line_num: line number in file
  */
-void push_error(FILE *fd, char *linebuf, stack_t *stack, int line_num)
+void push_error(FILE *fd, char *linebuf, stack_t **stack, int line_num)
 {
 	dprintf(STDERR_FILENO,"L%u: usage: push integer\n", line_num);
 	fclose(fd);
 	free(linebuf);
-	free_dlistint(stack);
+	free_dlistint(*stack);
 	exit(EXIT_FAILURE);
 }
 
@@ -21,12 +21,12 @@ void push_error(FILE *fd, char *linebuf, stack_t *stack, int line_num)
  * @fd: file descriptor
  * @linebuf: buffer for lines
  * @stack: stack or queue
- * @item: ops code
+ * @args: ops code
  * @line_num: line number in file
  */
-void instruct_error(FILE *fd,char *linebuf,stack_t *stack,char *item,int line_num)
+void instruct_error(FILE *fd,char *linebuf,stack_t *stack,char *args,int line_num)
 {
-	dprintf(STDERR_FILENO,"L%u:unknown instruction %s\n",line_num,item);
+	dprintf(STDERR_FILENO,"L%u:unknown instruction %s\n",line_num,args);
 	fclose(fd);
 	free(linebuf);
 	free_dlistint(stack);

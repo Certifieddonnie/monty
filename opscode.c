@@ -8,7 +8,12 @@
 void push_ops(stack_t **stack,unsigned int line_num)
 {
 	stack_t *newnode;
-	(void)line_num;
+	int i;
+
+	if(is_digit(global.item) == 1)
+		i = atoi(global.item);
+	else
+		push_error(global.fd,global.linebuf,stack,line_num);
 
 	newnode = malloc(sizeof(stack_t));
 	if(newnode == NULL)
@@ -16,7 +21,7 @@ void push_ops(stack_t **stack,unsigned int line_num)
 		dprintf(STDERR_FILENO,"Error: malloc failed\n");
 		exit(EXIT_FAILURE);
 	}
-	newnode->n = value;
+	newnode->n = i;
 	newnode->next = *stack;
 	newnode->prev = NULL;
 	if(*stack != NULL)

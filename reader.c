@@ -1,57 +1,58 @@
 #include "monty.h"
 
+glob_t global = {NULL, NULL, NULL};
+int value = 0;
+
 /**
  * read_file - Function that reads the file coming in.
  * @filename: file
  * Return: EXIT_SUCCESS or EXIT_FAILURE.
  */
-int read_file(const char *filename)
+void read_file(char *argv)
 {
-	FILE *fd;
 	int line = 0, res = 0;
 	size_t bufsize = 0;
-	char *linebuf, *args = NULL, *item = NULL;
+	char *args = NULL;
 	stack_t *stack = NULL;
 
-	fd = fopen(filename,O_RDONLY);
-	if (!fd)
+	global.fd = fopen(argv,"r");
+	if (global.fd)
 	{
-		dprintf(STDERR_FILENO,"Error: Can't open file %s\n",filename);
+		while(getline(&global.linebuf, &bufsize, global.fd) != -1)
+		{
+			line++;
+			args = strtok(global.linebuf," \n\t");
+			if(args == NULL)
+			{
+				free(args);
+				continue;
+			}
+			else if(*args == '#')
+				continue;
+			global.item = strtok(NULL," \n\t");
+			res = operation(&stack,args,line);
+			if(res == 2)
+				instruct_error(global.fd,global.linebuf,stack,args,line);
+		}
+		free(global.linebuf);
+		free_dlistint(stack);
+		fclose(global.fd);
+	}
+	else
+	{
+		dprintf(STDERR_FILENO, "Error: Can't open file %s\n", argv);
 		exit(EXIT_FAILURE);
 	}
-	while(getline(&linebuf, &bufsize, fd) != -1)
-	{
-		line++;
-		args = strtok(linebuf,"\n\t\r");
-		if(args == NULL)
-		{
-			free(args);
-			continue;
-		}
-		else if(*args == '#')
-			continue;
-		item = strtok(NULL,"\n\t\r");
-		res = operation(&stack,args,item,line);
-		if(res == -1)
-			push_error(fd,linebuf,stack,line);
-		else if(res == -2)
-			instruct_error(fd,linebuf,stack,args,line);
-	}
-	free(linebuf);
-	free_dlistint(stack);
-	fclose(fd);
-	return(EXIT_SUCCESS);
 }
 
 /**
  * operation - Function to handle the ops_code
  * @stack: stack or queue
  * @args: arguments token
- * @item: token
  * @line_num: line number in file
- * Return: -1, -2, or 0(success)
+ * Return: 1, 2, or 0(success)
  */
-int operation(stack_t **stack, char *args, char *item, int line_num)
+int operation(stack_t **stack, char *args, int line_num)
 {
 	int i;
 	instruction_t op[] = {
@@ -61,24 +62,17 @@ int operation(stack_t **stack, char *args, char *item, int line_num)
 	};
 
 	i = 0;
-	while(op[i].opcode)
+	while(op[i].opcode && args)
 	{
-		if(!strcmp(args,op[i].opcode))
+		if(strcmp(args,op[i].opcode) == 0)
 		{
-			if(!strcmp(args,"push"))
-			{
-				if(is_digit(item) == 1)
-					value = atoi(item);
-				else
-					return(-1);
-			}
 			op[i].f(stack,(unsigned int)line_num);
 			break;
 		}
 		i++;
 	}
-	if(!op[i].opcode)
-		return(-2);
+	if(args && op[i].opcode == NULL)
+		return(2);
 
 	return(0);
 }
