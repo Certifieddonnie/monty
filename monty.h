@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -41,5 +42,16 @@ typedef struct instruction_s
         void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
+extern int value;
+
+int is_digit(char *c);
 int read_file(const char *filename);
+void push_error(FILE *fd, char *linebuf, stack_t *stack, int line_num);
+void instruct_error(FILE *fd,char *linebuf,stack_t *stack,char *item,int line_num);
+int operation(stack_t **stack, char *args, char *item, int line_num);
+void pall_ops(stack_t **stack, unsigned int line_num);
+void free_dlistint(stack_t *stack);
+void push_ops(stack_t **stack,unsigned int line_num);
+
+
 #endif /*MONTY_H*/

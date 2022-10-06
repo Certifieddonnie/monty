@@ -7,36 +7,78 @@
  */
 int read_file(const char *filename)
 {
-	int fd, line = 1, maxlinelen = 128;
-	char ch;
-	char *linebuf;
+	FILE *fd;
+	int line = 0, res = 0;
+	size_t bufsize = 0;
+	char *linebuf, *args = NULL, *item = NULL;
+	stack_t *stack = NULL;
 
-	if (filename == NULL)
+	fd = fopen(filename,O_RDONLY);
+	if (!fd)
 	{
-		fprintf(stderr,"Error: file is empty\n");
-		return(EXIT_FAILURE);
+		dprintf(STDERR_FILENO,"Error: Can't open file %s\n",filename);
+		exit(EXIT_FAILURE);
 	}
-	fd = open(filename,O_RDONLY);
-	if (fd == -1)
+	while(getline(&linebuf, &bufsize, fd) != -1)
 	{
-		fprintf(stderr,"Error: Can't open file %s\n",filename);
-		return(EXIT_FAILURE);
-	}
-	linebuf = malloc(sizeof(char) * maxlinelen);
-	if (!linebuf)
-	{
-		dprintf(2,"Error: Can't allocate memory for line buffer");
-		return(EXIT_FAILURE);
-	}
-	while(fd != EOF)
-	{
-		while(fgets(line, sizeof(line), fd))
-		{
-			;
-		}
 		line++;
+		args = strtok(linebuf,"\n\t\r");
+		if(args == NULL)
+		{
+			free(args);
+			continue;
+		}
+		else if(*args == '#')
+			continue;
+		item = strtok(NULL,"\n\t\r");
+		res = operation(&stack,args,item,line);
+		if(res == -1)
+			push_error(fd,linebuf,stack,line);
+		else if(res == -2)
+			instruct_error(fd,linebuf,stack,args,line);
 	}
-
-
+	free(linebuf);
+	free_dlistint(stack);
+	fclose(fd);
 	return(EXIT_SUCCESS);
+}
+
+/**
+ * operation - Function to handle the ops_code
+ * @stack: stack or queue
+ * @args: arguments token
+ * @item: token
+ * @line_num: line number in file
+ * Return: -1, -2, or 0(success)
+ */
+int operation(stack_t **stack, char *args, char *item, int line_num)
+{
+	int i;
+	instruction_t op[] = {
+		{"push",push_ops},
+		{"pall",pall_ops},
+		{NULL, NULL}
+	};
+
+	i = 0;
+	while(op[i].opcode)
+	{
+		if(!strcmp(args,op[i].opcode))
+		{
+			if(!strcmp(args,"push"))
+			{
+				if(is_digit(item) == 1)
+					value = atoi(item);
+				else
+					return(-1);
+			}
+			op[i].f(stack,(unsigned int)line_num);
+			break;
+		}
+		i++;
+	}
+	if(!op[i].opcode)
+		return(-2);
+
+	return(0);
 }
