@@ -1,120 +1,180 @@
 #include "monty.h"
 
 /**
- * push_ops - pushes data into stack
- * @stack: stack
- * @line_num: line number in file
- */
-void push_ops(stack_t **stack, unsigned int line_num)
+* f_add - function that adds the top two elements of the stack
+* @head: double pointer head to the stack
+* @counter: line count
+*
+* Return: nothing
+*/
+void f_add(stack_t **head, unsigned int counter)
 {
-	stack_t *newnode;
-	int i;
+	stack_t *h;
+	int length = 0, temp;
 
-	if (is_digit(global.item) == 1)
-		i = atoi(global.item);
-	else
-		push_error(global.fd, global.linebuf, stack, line_num);
-
-	newnode = malloc(sizeof(stack_t));
-	if (newnode == NULL)
+	h = *head;
+	while (h)
 	{
-		dprintf(STDERR_FILENO, "Error: malloc failed\n");
+		h = h->next;
+		length++;
+	}
+	if (length < 2)
+	{
+		fprintf(stderr, "L%d: can't add, stack too short\n", counter);
+		fclose(bus.file);
+		free(bus.content);
+		free_stack(*head);
 		exit(EXIT_FAILURE);
 	}
-	newnode->n = i;
-	newnode->next = *stack;
-	newnode->prev = NULL;
-	if (*stack != NULL)
-		(*stack)->prev = newnode;
-	*stack = newnode;
+	h = *head;
+	temp = h->n + h->next->n;
+	h->next->n = temp;
+	*head = h->next;
+	free(h);
 }
 
 /**
- * pall_ops - Prints all elements in stack
- * @stack: stack
- * @line_num: line number in file
- */
-void pall_ops(stack_t **stack, unsigned int line_num)
+* f_sub - function that substracts nodes
+* @head: double head pointer to the stack
+* @counter: line count
+*
+* Return: nothing
+*/
+void f_sub(stack_t **head, unsigned int counter)
 {
 	stack_t *temp;
-	(void)line_num;
+	int sub, nd;
 
-	temp = *stack;
-	if (temp == NULL)
-		return;
-	while (temp)
-	{
-		printf("%d\n", temp->n);
+	temp = *head;
+	for (nd = 0; temp != NULL; nd++)
 		temp = temp->next;
-	}
-}
-
-/**
- * free_dlistint - Frees a list
- * @stack: Head node
- * Return: Nothing
- */
-void free_dlistint(stack_t *stack)
-{
-	stack_t *temp = NULL;
-
-	temp = stack;
-	if (temp != NULL)
+	if (nd < 2)
 	{
-		free_dlistint(temp->next);
-		free(temp);
-	}
-}
-
-/**
- * pint_ops - Prints the value at the top of the stack.
- * @stack: Head node
- * @line_num: line number in file
- * Return: Nothing
- */
-void pint_ops(stack_t **stack, unsigned int line_num)
-{
-	stack_t *temp;
-	(void)line_num;
-
-	temp = *stack;
-	if (*stack == NULL)
-	{
-		dprintf(STDERR_FILENO, "L%d: can't pint, stack empty\n", line_num);
-		fclose(global.fd);
-		free(global.linebuf);
-		free_dlistint(*stack);
+		fprintf(stderr, "L%d: can't sub, stack too short\n", counter);
+		fclose(bus.file);
+		free(bus.content);
+		free_stack(*head);
 		exit(EXIT_FAILURE);
 	}
-	else
-	{
-		dprintf(STDOUT_FILENO, "%d\n", temp->n);
-	}
+	temp = *head;
+	sub = temp->next->n - temp->n;
+	temp->next->n = sub;
+	*head = temp->next;
+	free(temp);
 }
 
 /**
- * pop_ops - Removes the top element of the stack.
- * @stack: Head node
- * @line_num: line number in file
- * Return: Nothing
- */
-void pop_ops(stack_t **stack, unsigned int line_num)
+* f_mul - function that multiplies the top two elements of the stack
+* @head: double head pointer to the stack
+* @counter: line count
+*
+* Return: nothing
+*/
+void f_mul(stack_t **head, unsigned int counter)
 {
-	stack_t *temp;
-	(void)line_num;
+	stack_t *h;
+	int length = 0, temp;
 
-	temp = *stack;
-	if (*stack == NULL)
+	h = *head;
+	while (h)
 	{
-		dprintf(STDERR_FILENO, "L%d: can't pop an empty stack\n", line_num);
-		fclose(global.fd);
-		free(global.linebuf);
-		free_dlistint(*stack);
+		h = h->next;
+		length++;
+	}
+	if (length < 2)
+	{
+		fprintf(stderr, "L%d: can't mul, stack too short\n", counter);
+		fclose(bus.file);
+		free(bus.content);
+		free_stack(*head);
 		exit(EXIT_FAILURE);
 	}
-	else
+	h = *head;
+	temp = h->next->n * h->n;
+	h->next->n = temp;
+	*head = h->next;
+	free(h);
+}
+
+/**
+* f_div - function that divides the top two elements of the stack
+* @head: double head pointer to the stack
+* @counter: line count
+*
+* Return: nothing
+*/
+void f_div(stack_t **head, unsigned int counter)
+{
+	stack_t *h;
+	int length = 0, temp;
+
+	h = *head;
+	while (h)
 	{
-		*stack = (*stack)->next;
-		free(temp);
+		h = h->next;
+		length++;
 	}
+	if (length < 2)
+	{
+		fprintf(stderr, "L%d: can't div, stack too short\n", counter);
+		fclose(bus.file);
+		free(bus.content);
+		free_stack(*head);
+		exit(EXIT_FAILURE);
+	}
+	h = *head;
+	if (h->n == 0)
+	{
+		fprintf(stderr, "L%d: division by zero\n", counter);
+		fclose(bus.file);
+		free(bus.content);
+		free_stack(*head);
+		exit(EXIT_FAILURE);
+	}
+	temp = h->next->n / h->n;
+	h->next->n = temp;
+	*head = h->next;
+	free(h);
+}
+
+/**
+* f_mod - function that computes the remainder of the division of the second
+* top element of the stack by the top element of the stack
+* @head: double head pointer to the stack
+* @counter: line count
+*
+* Return: nothing
+*/
+void f_mod(stack_t **head, unsigned int counter)
+{
+	stack_t *h;
+	int length = 0, temp;
+
+	h = *head;
+	while (h)
+	{
+		h = h->next;
+		length++;
+	}
+	if (length < 2)
+	{
+		fprintf(stderr, "L%d: can't mod, stack too short\n", counter);
+		fclose(bus.file);
+		free(bus.content);
+		free_stack(*head);
+		exit(EXIT_FAILURE);
+	}
+	h = *head;
+	if (h->n == 0)
+	{
+		fprintf(stderr, "L%d: division by zero\n", counter);
+		fclose(bus.file);
+		free(bus.content);
+		free_stack(*head);
+		exit(EXIT_FAILURE);
+	}
+	temp = h->next->n % h->n;
+	h->next->n = temp;
+	*head = h->next;
+	free(h);
 }
