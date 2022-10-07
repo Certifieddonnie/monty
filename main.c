@@ -1,4 +1,9 @@
 #include "monty.h"
+#include <stdio.h>
+#define _GNU_SOURCE
+#include <stdlib.h>
+
+glob_t global = {NULL, NULL, NULL};
 
 /**
  * main - Entry Point of Program.
@@ -8,11 +13,11 @@
  * @argv: arguments string
  * Return: EXIT_SUCCESS or EXIT_FAILURE
  */
-int main(int argc,char *argv[])
+int main(int argc, char *argv[])
 {
 	if (argc != 2)
 	{
-		dprintf(2,"USAGE: monty file\n");
+		dprintf(2, "USAGE: monty file\n");
 		exit(EXIT_FAILURE);
 	}
 

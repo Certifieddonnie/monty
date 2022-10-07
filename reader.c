@@ -1,11 +1,8 @@
 #include "monty.h"
 
-glob_t global = {NULL, NULL, NULL};
-int value = 0;
-
 /**
  * read_file - Function that reads the file coming in.
- * @filename: file
+ * @argv: file
  * Return: EXIT_SUCCESS or EXIT_FAILURE.
  */
 void read_file(char *argv)
@@ -15,24 +12,24 @@ void read_file(char *argv)
 	char *args = NULL;
 	stack_t *stack = NULL;
 
-	global.fd = fopen(argv,"r");
+	global.fd = fopen(argv, "r");
 	if (global.fd)
 	{
-		while(getline(&global.linebuf, &bufsize, global.fd) != -1)
+		while (getline(&global.linebuf, &bufsize, global.fd) != -1)
 		{
 			line++;
-			args = strtok(global.linebuf," \n\t");
-			if(args == NULL)
+			args = strtok(global.linebuf, " \n\t");
+			if (args == NULL)
 			{
 				free(args);
 				continue;
 			}
-			else if(*args == '#')
+			else if (*args == '#')
 				continue;
-			global.item = strtok(NULL," \n\t");
-			res = operation(&stack,args,line);
-			if(res == 2)
-				instruct_error(global.fd,global.linebuf,stack,args,line);
+			global.item = strtok(NULL, " \n\t");
+			res = operation(&stack, args, line);
+			if (res == 2)
+				instruct_error(global.fd, global.linebuf, stack, args, line);
 		}
 		free(global.linebuf);
 		free_dlistint(stack);
@@ -56,23 +53,28 @@ int operation(stack_t **stack, char *args, int line_num)
 {
 	int i;
 	instruction_t op[] = {
-		{"push",push_ops},
-		{"pall",pall_ops},
+		{"push", push_ops},
+		{"pall", pall_ops},
+		{"pint", pint_ops},
+		{"pop", pop_ops},
+		{"swap", swap_ops},
+		{"add", add_ops},
+		{"nop", nop_ops},
 		{NULL, NULL}
 	};
 
 	i = 0;
-	while(op[i].opcode && args)
+	while (op[i].opcode && args)
 	{
-		if(strcmp(args,op[i].opcode) == 0)
+		if (strcmp(args, op[i].opcode) == 0)
 		{
-			op[i].f(stack,(unsigned int)line_num);
+			op[i].f(stack, (unsigned int)line_num);
 			break;
 		}
 		i++;
 	}
-	if(args && op[i].opcode == NULL)
-		return(2);
+	if (args && op[i].opcode == NULL)
+		return (2);
 
-	return(0);
+	return (0);
 }

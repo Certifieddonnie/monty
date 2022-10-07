@@ -23,9 +23,9 @@
  */
 typedef struct stack_s
 {
-        int n;
-        struct stack_s *prev;
-        struct stack_s *next;
+	int n;
+	struct stack_s *prev;
+	struct stack_s *next;
 } stack_t;
 
 /**
@@ -38,8 +38,8 @@ typedef struct stack_s
  */
 typedef struct instruction_s
 {
-        char *opcode;
-        void (*f)(stack_t **stack, unsigned int line_number);
+	char *opcode;
+	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
 /**
@@ -59,14 +59,22 @@ typedef struct glob_s
 
 extern glob_t global;
 
-int is_digit(char *c);
 void read_file(char *argv);
-void push_error(FILE *fd, char *linebuf, stack_t **stack, int line_num);
 int operation(stack_t **stack, char *args, int line_num);
+/*Helpers*/
+int is_digit(char *c);
+/*Error handlers*/
+void push_error(FILE *fd, char *linebuf, stack_t **stack, int line_num);
+void instruct_error(FILE *fd, char *lin, stack_t *stack, char *args, int line);
+/*OpCodes*/
+void nop_ops(stack_t **stack, unsigned int line_num);
+void add_ops(stack_t **stack, unsigned int line_num);
+void swap_ops(stack_t **stack, unsigned int line_num);
+void pop_ops(stack_t **stack, unsigned int line_num);
+void pint_ops(stack_t **stack, unsigned int line_num);
 void pall_ops(stack_t **stack, unsigned int line_num);
-void instruct_error(FILE *fd,char *linebuf,stack_t *stack,char *args,int line_num);
+void push_ops(stack_t **stack, unsigned int line_num);
+/*Stacks & Queues*/
 void free_dlistint(stack_t *stack);
-void push_ops(stack_t **stack,unsigned int line_num);
-
 
 #endif /*MONTY_H*/

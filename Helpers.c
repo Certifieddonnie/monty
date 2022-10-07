@@ -8,17 +8,17 @@ int is_digit(char *c)
 {
 	char *k = c;
 
-	if(c == NULL)
-		return(0);
-	if(*k == '-')
+	if (c == NULL)
+		return (0);
+	if (*k == '-')
 		k++;
 
-	for(;*k != '\0';k++)
+	for (; *k != '\0'; k++)
 	{
-		if((*k < '0' || *k > '9'))
+		if ((*k < '0' || *k > '9'))
 		{
-			return(0);
+			return (0);
 		}
 	}
-	return(1);
+	return (1);
 }
