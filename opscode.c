@@ -40,9 +40,11 @@ void pall_ops(stack_t **stack, unsigned int line_num)
 	(void)line_num;
 
 	temp = *stack;
-	while (temp != NULL)
+	if (temp == NULL)
+		return;
+	while (temp)
 	{
-		dprintf(STDOUT_FILENO, "%d\n", temp->n);
+		printf("%d\n", temp->n);
 		temp = temp->next;
 	}
 }
